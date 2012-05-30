@@ -60,7 +60,7 @@ module ApnClient
     def next_message!
       @current_message = (messages.respond_to?(:next) ? messages.next : messages.shift)
     rescue StopIteration
-      nil
+      @current_message = nil
     end
     
     def process_one_message!
