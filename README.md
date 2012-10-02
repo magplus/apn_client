@@ -64,7 +64,7 @@ The gem is tested on MRI 1.9.2.
 
 ## Credits
 
-This gem is an extraction of production code at [Mag+](http://www.magplus.com) and both [Dennis Rogenius](https://github.com/denro) and [Lennart Friden](https://github.com/DevL) made important contributions along the way.
+This gem is originally an extraction of production code at [Mag+](http://www.magplus.com) by [Peter Marklund](https://github.com/peter) and both [Dennis Rogenius](https://github.com/denro) and [Lennart Fridén](https://github.com/DevL) made important contributions along the way.
 
 The APN connection code has its origins in the [APN on Rails](https://github.com/jwang/apn_on_rails) gem.
 
