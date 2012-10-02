@@ -1,7 +1,7 @@
 module ApnClient
   class Delivery
     attr_accessor :messages, :callbacks, :consecutive_failure_limit, :exception_limit, :sleep_on_exception, :connection_config,
-      :exception_count, :success_count, :failure_count, :consecutive_failure_count,
+      :exception_count, :success_count, :failure_count, :consecutive_failure_count, :connection_exception_occurred,
       :started_at, :finished_at
 
     # Creates a new APN delivery
@@ -15,11 +15,12 @@ module ApnClient
       self.success_count = 0
       self.failure_count = 0
       self.consecutive_failure_count = 0
+      self.connection_exception_occurred = false
     end
 
     def process!
       self.started_at = Time.now
-      while current_message && consecutive_failure_count < consecutive_failure_limit
+      while current_message && error_limit_not_reached?
         process_one_message!
       end
       close_connection
@@ -44,29 +45,36 @@ module ApnClient
       NamedArgs.assert_valid!(options,
         :optional => [:callbacks, :consecutive_failure_limit, :exception_limit, :sleep_on_exception],
         :required => [:connection_config])
-      NamedArgs.assert_valid!(options[:callbacks], :optional => [:on_write, :on_error, :on_nil_select, :on_read_exception, :on_exception, :on_failure])
+      NamedArgs.assert_valid!(options[:callbacks], :optional => valid_callbacks)
       self.callbacks = options[:callbacks]
       self.consecutive_failure_limit = options[:consecutive_failure_limit] || 10
       self.exception_limit = options[:exception_limit] || 3
       self.sleep_on_exception = options[:sleep_on_exception] || 1
       self.connection_config = options[:connection_config]
     end
-    
+
+    def valid_callbacks
+      [
+        :on_write, :on_error, :on_nil_select, :on_read_exception,
+        :on_exception, :on_failure, :on_connection_exception
+      ]
+    end
+
     def current_message
       return @current_message if @current_message
       next_message!
     end
-    
+
     def next_message!
       @current_message = (messages.respond_to?(:next) ? messages.next : messages.shift)
     rescue StopIteration
       @current_message = nil
     end
-    
+
     def process_one_message!
       begin
-        write_message!
-        check_message_error!
+        write_message! if connection
+        check_message_error! unless connection_exception_occurred
       rescue Exception => e
         handle_exception!(e)
         check_message_error! unless @checked_message_error
@@ -75,7 +83,12 @@ module ApnClient
     end
 
     def connection
-      @connection ||= Connection.new(connection_config)
+      @connection ||= begin
+        Connection.new(connection_config)
+      rescue OpenSSL::OpenSSLError => e
+        handle_connection_exception!(e)
+        nil
+      end
     end
 
     def close_connection
@@ -90,7 +103,7 @@ module ApnClient
       invoke_callback(:on_write, current_message)
       next_message!
     end
-    
+
     def check_message_error!
       @checked_message_error = true
       failed_message_id, error_code = read_apns_error
@@ -129,6 +142,15 @@ module ApnClient
       sleep(sleep_on_exception) if sleep_on_exception
     end
 
+    def handle_connection_exception!(e)
+      invoke_callback(:on_connection_exception, e)
+      self.connection_exception_occurred = true
+    end
+
+    def error_limit_not_reached?
+      (consecutive_failure_count < consecutive_failure_limit) && !connection_exception_occurred
+    end
+
     def exception_limit_reached?
       exception_count == exception_limit
     end
@@ -139,7 +161,7 @@ module ApnClient
       invoke_callback(:on_failure, current_message)
       next_message!
     end
-    
+
     def invoke_callback(name, *args)
       callbacks[name].call(self, *args) if callbacks[name]
     end

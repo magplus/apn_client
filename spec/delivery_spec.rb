@@ -19,7 +19,7 @@ describe ApnClient::Delivery do
         :port => 2195,
         :certificate => "certificate",
         :certificate_passphrase => ''
-    }    
+    }
   end
 
   describe "#initialize" do
@@ -85,6 +85,14 @@ describe ApnClient::Delivery do
       exceptions.first.is_a?(RuntimeError).should be_true
       failures.should == [@message1]
       read_exceptions.size.should == 4
+    end
+
+    it "invokes on_connection_exception callback if there are OpenSSL problems" do
+      exceptions = []
+      callbacks = { :on_connection_exception => lambda { |d, e| exceptions << e } }
+      delivery = create_delivery([@message1], :callbacks => callbacks, :connection_config => @connection_config)
+      delivery.process!
+      exceptions.should be_one
     end
 
     it "invokes on_error callback if there are errors read" do
