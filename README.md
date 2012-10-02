@@ -30,6 +30,7 @@ delivery = ApnClient::Delivery.new([message1, message2],
   :callbacks => {
     :on_write => lambda { |d, m| puts "Wrote message #{m}" },
     :on_exception => lambda { |d, e| puts "Exception #{e} raised when delivering message #{m}" },
+    :on_connection_exception => lambda { |d, m| puts "OpenSSL exception occurred when trying to connect" },
     :on_failure => lambda { |d, m| puts "Skipping failed message #{m}" },
     :on_error => lambda { |d, message_id, error_code| puts "Received error code #{error_code} from Apple for message #{message_id}" }
   },
