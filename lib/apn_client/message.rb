@@ -44,7 +44,7 @@ module ApnClient
 
     def self.expires_at
       seconds_per_day = 24*3600
-      (Time.now + 30*seconds_per_day).to_i
+      (Time.now.utc + 30*seconds_per_day).to_i
     end
 
     # Delegate attribute reading and writing (#attribute_name and #attribute_name=)
