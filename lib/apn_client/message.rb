@@ -52,7 +52,7 @@ module ApnClient
     def method_missing(method_name, *args)
       method_match, attribute_name, equal_sign = method_name.to_s.match(/\A([^=]+)(=)?\Z/).to_a
       if attribute_name && self.class.valid_attributes.include?(attribute_name.to_sym)
-        if equal_sign          
+        if equal_sign
           attributes[attribute_name.to_sym] = args.first
         else
           attributes[attribute_name.to_sym]
@@ -73,7 +73,7 @@ module ApnClient
     def self.valid_attributes
       optional_attributes + required_attributes
     end
-    
+
     # The payload is a JSON formated hash with alert, sound, badge, content-available,
     # and any custom properties, example:
     # {"aps" => {"badge" => 5, "sound" => "my_sound.aiff", "alert" => "Hello!"}}
