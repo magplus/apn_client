@@ -60,7 +60,7 @@ TODO
 The payload of an APN message is a JSON formated hash (containing alert message, badge count, content available etc.) and therefore a JSON library needs to be present. This gem requires a Hash#to_json method to be defined (hashes need to respond
 to to_json and return valid JSON). If you for example have the json gem or the rails gem in your environment then this requirement is fulfilled.
 
-The gem is tested on MRI 1.9.2.
+The gem is tested on MRI 1.9.3.
 
 ## Credits
 
