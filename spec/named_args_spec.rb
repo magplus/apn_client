@@ -3,9 +3,9 @@ require 'spec_helper'
 describe ApnClient::NamedArgs do
   describe ".assert_allowed!" do
     it "raises an exception if the argument hash contains a key not in the allowed list" do
-      lambda {
+      expect {
         ApnClient::NamedArgs.assert_allowed!({:foo => 1, :bla => 2}, [:foo, :bar])
-      }.should raise_error(/foo/)
+      }.to raise_error(/foo/)
     end
 
     it "does not raise an exception if the arguments hash is empty" do
@@ -23,9 +23,9 @@ describe ApnClient::NamedArgs do
 
   describe ".assert_present!" do
     it "raises an exception if arguments are empty and required keys are not empty" do
-      lambda {
+      expect {
         ApnClient::NamedArgs.assert_present!({}, [:foo])
-      }.should raise_error(/foo/)
+      }.to raise_error(/foo/)
     end
 
     it "does not raise an exception if arguments are empty and required keys are empty" do
@@ -33,9 +33,9 @@ describe ApnClient::NamedArgs do
     end
 
     it "raises an exception if arguments have some but not all required keys" do
-      lambda {
+      expect {
         ApnClient::NamedArgs.assert_present!({:bar => 1}, [:foo, :bar])
-      }.should raise_error(/foo/)
+      }.to raise_error(/foo/)
     end
 
     it "does not raise an excpeption if arguments have all required keys" do
@@ -74,22 +74,22 @@ describe ApnClient::NamedArgs do
     end
 
     it "raises an exception if a required arg is missing" do
-      lambda {
+      expect {
         ApnClient::NamedArgs.assert_valid!({:bar => 2}, :required => [:foo], :optional => [:bar])
-      }.should raise_error(/foo/)
+      }.to raise_error(/foo/)
     end
 
     it "raises an exception if an invalid arg is present" do
-      lambda {
+      expect {
         ApnClient::NamedArgs.assert_valid!({:foo => 1, :bar => 2, :bla => 3}, :required => [:foo], :optional => [:bar])
-      }.should raise_error(/bla/)
+      }.to raise_error(/bla/)
     end
 
     it "does not raise an exception if args are nil and all keys are optional" do
       ApnClient::NamedArgs.assert_valid!(nil, :optional => [:bar])
     end
   end
-  
+
   describe ".symbolize_keys!" do
     it "takes a hash and symbolizes its keys" do
       attributes = {
@@ -97,10 +97,10 @@ describe ApnClient::NamedArgs do
         :bar => 2
       }
       ApnClient::NamedArgs.symbolize_keys!(attributes)
-      attributes.should == {
+      expect(attributes).to eq({
         :foo => 1,
         :bar => 2
-      }
+      })
     end
   end
 end

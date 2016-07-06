@@ -10,25 +10,25 @@ describe ApnClient::Message do
 
   describe "#initialize" do
     it "cannot be created without a message_id" do
-      lambda {
+      expect{
         ApnClient::Message.new()
-      }.should raise_error(/message_id/)
+      }.to raise_error(/message_id/)
     end
 
     it "cannot be created without a token" do
-      lambda {
+      expect {
         ApnClient::Message.new(:message_id => 1)
-      }.should raise_error(/device_token/)
+      }.to raise_error(/device_token/)
     end
 
     it "can be created with a token and an alert" do
       message = create_message(:message_id => 1, :device_token => @device_token, :alert => @alert)
-      message.payload_hash.should == {'aps' => {'alert' => @alert}}
+      expect(message.payload_hash).to eq({'aps' => {'alert' => @alert}})
     end
 
     it "can be created with a token and an alert and a badge" do
       message = create_message(:message_id => 1, :device_token => @device_token, :alert => @alert, :badge => @badge)
-      message.payload_hash.should == {'aps' => {'alert' => @alert, 'badge' => @badge}}
+      expect(message.payload_hash).to eq({'aps' => {'alert' => @alert, 'badge' => @badge}})
     end
 
     it "can be created with a token and an alert and a badge and content-available" do
@@ -38,14 +38,14 @@ describe ApnClient::Message do
         :alert => @alert,
         :badge => @badge,
         :content_available => true)
-      message.payload_hash.should == {'aps' => {'alert' => @alert, 'badge' => @badge, 'content-available' => 1}}
+      expect(message.payload_hash).to eq({'aps' => {'alert' => @alert, 'badge' => @badge, 'content-available' => 1}})
     end
 
     it "raises an exception if payload_size exceeds 256 bytes" do
-      lambda {
+      expect {
         too_long_alert = "A"*1000
         ApnClient::Message.new(:message_id => 1, :device_token => @device_token, :alert => too_long_alert)
-      }.should raise_error(/payload/i)
+      }.to raise_error(/payload/i)
     end
   end
 
@@ -57,12 +57,12 @@ describe ApnClient::Message do
         :alert => @alert,
         :badge => @badge,
         :content_available => true)
-      message.message_id.should == 1
-      message.badge.should == @badge
+      expect(message.message_id).to be 1
+      expect(message.badge).to eq @badge
       message.message_id = 3
-      message.message_id.should == 3
+      expect(message.message_id).to be 3
     end
-    
+
     it "works with string keys too" do
       message = create_message(
         'message_id' => 1,
@@ -70,17 +70,17 @@ describe ApnClient::Message do
         'alert' => @alert,
         'badge' => @badge,
         'content_available' => true)
-      message.message_id.should == 1
-      message.badge.should == @badge
+      expect(message.message_id).to be 1
+      expect(message.badge).to eq  @badge
       message.message_id = 3
-      message.message_id.should == 3
-      message.attributes.should == {
+      expect(message.message_id).to be 3
+      expect(message.attributes).to eq({
         :message_id => 3,
         :device_token => @device_token,
         :alert => @alert,
         :badge => @badge,
-        :content_available => true        
-      }
+        :content_available => true
+      })
     end
   end
 
@@ -89,22 +89,22 @@ describe ApnClient::Message do
       @message = create_message(:message_id => 3, :device_token => @device_token)
       @other_message = create_message(:message_id => 5, :device_token => @other_device_token)
     end
-    
+
     it "returns false for nil" do
-      @message.should_not == nil
+      expect(@message).not_to be_nil
     end
-    
-    it "returns false for an object that is not a Message" do      
-      @message.should_not == "foobar"
+
+    it "returns false for an object that is not a Message" do
+      expect(@message).not_to eq "foobar"
     end
-    
+
     it "returns false for a Message with a different message_id" do
-      @message.should_not == @other_message
+      expect(@message).not_to eq  @other_message
     end
-    
+
     it "returns true for a Message with the same message_id" do
       @other_message.message_id = @message.message_id
-      @message.should == @other_message
+      expect(@message).to eq @other_message
     end
   end
 
@@ -118,7 +118,7 @@ describe ApnClient::Message do
         :content_available => true
       }
       message = create_message(attributes)
-      message.to_hash.should == attributes
+      expect(message.to_hash).to eq attributes
     end
   end
 
@@ -132,24 +132,24 @@ describe ApnClient::Message do
         :content_available => true
       }
       message = create_message(attributes)
-      message.to_hash.should == attributes
-      JSON.parse(message.to_json).should == {
+      expect(message.to_hash).to eq attributes
+      expect(JSON.parse(message.to_json)).to eq({
         'message_id' => 1,
         'device_token' => @device_token,
         'alert' => @alert,
         'badge' => @badge,
         'content_available' => true
-      }
+      })
     end
   end
 
   def create_message(attributes = {})
     message = ApnClient::Message.new(attributes)
     attributes.keys.each do |attribute|
-      message.send(attribute).should == attributes[attribute]
+      expect(message.send(attribute)).to eq attributes[attribute]
     end
-    message.payload_size.should < 256
-    message.to_s.should_not be_nil
+    expect(message.payload_size).to be < 256
+    expect(message.to_s).not_to be_nil
     message
   end
 end

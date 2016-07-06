@@ -25,7 +25,7 @@ describe ApnClient::Delivery do
   describe "#initialize" do
     it "initializes counts and other attributes" do
       delivery = create_delivery([@message1, @message2], :connection_config => @connection_config)
-      delivery.connection_config.should == @connection_config
+      expect(delivery.connection_config).to eq @connection_config
     end
   end
 
@@ -48,11 +48,11 @@ describe ApnClient::Delivery do
 
       delivery.process!
 
-      delivery.failure_count.should == 0
-      delivery.success_count.should == 2
-      delivery.total_count.should == 2
-      written_messages.should == messages
-      nil_selects.should == 2
+      expect(delivery.failure_count).to be 0
+      expect(delivery.success_count).to be 2
+      expect(delivery.total_count).to be 2
+      expect(written_messages).to eq messages
+      expect(nil_selects).to be 2
     end
 
     it "fails a message if it fails more than 3 times" do
@@ -77,14 +77,14 @@ describe ApnClient::Delivery do
 
       delivery.process!
 
-      delivery.failure_count.should == 1
-      delivery.success_count.should == 1
-      delivery.total_count.should == 2
-      written_messages.should == [@message2]
-      exceptions.size.should == 3
-      exceptions.first.is_a?(RuntimeError).should be_true
-      failures.should == [@message1]
-      read_exceptions.size.should == 4
+      expect(delivery.failure_count).to be 1
+      expect(delivery.success_count).to be 1
+      expect(delivery.total_count).to be 2
+      expect(written_messages).to eq [@message2]
+      expect(exceptions.size).to eq 3
+      expect(exceptions.first).to be_a(RuntimeError)
+      expect(failures).to eq [@message1]
+      expect(read_exceptions.size).to be 4
     end
 
     it "invokes on_connection_exception callback if there are OpenSSL problems" do
@@ -92,7 +92,7 @@ describe ApnClient::Delivery do
       callbacks = { :on_connection_exception => lambda { |d, e| exceptions << e } }
       delivery = create_delivery([@message1], :callbacks => callbacks, :connection_config => @connection_config)
       delivery.process!
-      exceptions.should be_one
+      expect(exceptions).to be_one
     end
 
     it "invokes on_error callback if there are errors read" do
@@ -122,30 +122,30 @@ describe ApnClient::Delivery do
 
       delivery.process!
 
-      delivery.failure_count.should == 1
-      delivery.success_count.should == 1
-      delivery.total_count.should == 2
-      written_messages.should == [@message1, @message2]
-      exceptions.size.should == 0
-      failures.size.should == 0
-      errors.should == [[1752458605, 111]]
+      expect(delivery.failure_count).to be 1
+      expect(delivery.success_count).to be 1
+      expect(delivery.total_count).to be 2
+      expect(written_messages).to eq [@message1, @message2]
+      expect(exceptions.size).to be 0
+      expect(failures.size).to be 0
+      expect(errors).to eq [[1752458605, 111]]
     end
   end
 
   def create_delivery(messages, options = {})
     delivery = ApnClient::Delivery.new(messages, options)
-    delivery.messages.should == messages
-    delivery.callbacks.should == options[:callbacks]
-    delivery.exception_count.should == 0
-    delivery.success_count.should == 0
-    delivery.failure_count.should == 0
-    delivery.consecutive_failure_count.should == 0
-    delivery.started_at.should be_nil
-    delivery.finished_at.should be_nil
-    delivery.elapsed.should == 0
-    delivery.consecutive_failure_limit.should == 10
-    delivery.exception_limit.should == 3
-    delivery.sleep_on_exception.should == 1
+    expect(delivery.messages).to eq messages
+    expect(delivery.callbacks).to eq options[:callbacks]
+    expect(delivery.exception_count).to be 0
+    expect(delivery.success_count).to be 0
+    expect(delivery.failure_count).to be  0
+    expect(delivery.consecutive_failure_count).to be 0
+    expect(delivery.started_at).to be_nil
+    expect(delivery.finished_at).to be_nil
+    expect(delivery.elapsed).to be 0
+    expect(delivery.consecutive_failure_limit).to be 10
+    expect(delivery.exception_limit).to be 3
+    expect(delivery.sleep_on_exception).to be 1
     delivery
   end
 end

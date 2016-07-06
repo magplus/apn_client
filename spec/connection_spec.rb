@@ -33,9 +33,9 @@ describe ApnClient::Connection do
     it "does not accept invalid arguments" do
       invalid_config = valid_config.merge({:foobar => 1})
       TCPSocket.expects(:new).never
-      lambda {
+      expect {
         ApnClient::Connection.new(invalid_config)
-      }.should raise_error(/foobar/)
+      }.to raise_error(/foobar/)
     end
   end
 
@@ -88,7 +88,7 @@ describe ApnClient::Connection do
       ApnClient::Connection.any_instance.expects(:connect_to_socket)
       ApnClient::Connection.any_instance.expects(:close)
       ApnClient::Connection.open(valid_config) do |connection|
-        connection.config.should == valid_config_with_defaults
+        expect(connection.config).to eq valid_config_with_defaults
       end
     end
   end

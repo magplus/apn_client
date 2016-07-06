@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 require "apn_client/version"
 
@@ -19,7 +18,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "json"
-  s.add_development_dependency "debugger"
   s.add_development_dependency "rspec"
   s.add_development_dependency "mocha"
   s.add_development_dependency "yard"
