@@ -105,7 +105,7 @@ describe ApnClient::Connection do
     {
         :host => 'gateway.push.apple.com',
         :port => 2195,
-        :certificate => IO.read(certificate_path),
+        :certificate => (IO.read(certificate_path) rescue ""),
         :certificate_passphrase => ''
     }
   end
