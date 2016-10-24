@@ -85,7 +85,7 @@ module ApnClient
     def connection
       @connection ||= begin
         Connection.new(connection_config)
-      rescue OpenSSL::OpenSSLError => e
+      rescue OpenSSL::OpenSSLError, OpenSSL::SSL::SSLError => e
         handle_connection_exception!(e)
         nil
       end
